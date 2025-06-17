@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyclone Amphan 2020 - Risk Assessment Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #2d1b69 100%);
+            color: white;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .header {
+            position: relative;
+            z-index: 100;
+            padding: 2rem 0;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 8px 32px rgba(255, 107, 107, 0.3);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(45deg, #ff8e8e, #ffb3b3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .nav-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 107, 107, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ffffff, #ff8e8e, #ffb3b3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .overview-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .overview-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+        }
+
+        .overview-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 107, 107, 0.3);
+            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.2);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #ff8e8e;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .map-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            align-items: start;
+            margin-bottom: 2rem;
+            height: 70vh;
+        }
+
+        .map-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 1.5rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .map-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #ff8e8e;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .map-container img {
+            width: 100%;
+            flex: 1;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .insights-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            height: 100%;
+        }
+
+        .insight-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .insight-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 107, 107, 0.3);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.2);
+        }
+
+        .insight-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ff8e8e;
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .embed-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .embed-container iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            border-radius: 12px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ff8e8e, #ffb3b3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-header p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1200px) {
+            .map-section {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .map-container {
+                height: 50vh;
+            }
+
+            .insights-container {
+                flex-direction: row;
+                height: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-tabs {
+                overflow-x: auto;
+                width: 100%;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .overview-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .insights-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🌀</div>
+                <div class="logo-text">Cyclone Risk Assessment</div>
+            </div>
+            <nav class="nav-tabs">
+                <button class="nav-tab active" onclick="showSection('overview')">Overview</button>
+                
+                <button class="nav-tab" onclick="showSection('infrastructure')">Infrastructure</button>
+                <button class="nav-tab" onclick="showSection('population')">Coastal Flooding</button>
+                <button class="nav-tab" onclick="showSection('coastal')">Flooding</button>
+                <button class="nav-tab" onclick="showSection('contamination')">Water Quality</button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Overview Section -->
+        <div id="overview" class="content-section active">
+            <div class="hero">
+                <h1>Cyclone Amphan 2020</h1>
+                <p>Comprehensive risk assessment and impact analysis for Bangladesh focusing on children's vulnerabilities and critical infrastructure damage.</p>
+            </div>
+
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <div class="card-icon">👥</div>
+                    <div class="stat-value">2.4M</div>
+                    <div class="stat-label">Children at Risk</div>
+                </div>
+
+
+
+            </div>
+
+            <div class="embed-container">
+                <iframe src="cyclone_amphan_beautiful.html" title="Interactive Cyclone Amphan Visualization"></iframe>
+            </div>
+        </div>
+
+        <!-- Population Exposure Section -->
+        <div id="population" class="content-section">
+            <div class="section-header">
+                <h2>Coastal Flooding</h2>
+                <p>Understanding children's vulnerability to coastal flooding across Bangladesh</p>
+            </div>
+
+            <div class="map-section">
+                <div class="map-container">
+                    <div class="map-title">Children at Risk from Coastal Flooding</div>
+                    <img src="coastal flood.png" alt="Children at Risk from Coastal Flooding Map">
+                </div>
+                
+                <div class="insights-container">
+                    <div class="insight-card">
+                        <div class="insight-value">378K</div>
+                        <div class="insight-label">Vulnerable Children</div>
+                    </div>
+
+                    <div class="insight-card">
+                        <div class="insight-value">3</div>
+                        <div class="insight-label">Critical Districts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Infrastructure Section -->
+        <div id="infrastructure" class="content-section">
+            <div class="section-header">
+                <h2>Critical Infrastructure Impact</h2>
+                <p>Assessment of schools and healthcare facilities along the cyclone path</p>
+            </div>
+
+            <div class="map-section">
+                <div class="map-container">
+                    <div class="map-title">Infrastructure Facilities Affected by Cyclone Amphan</div>
+                    <img src="school and healt.png" alt="Infrastructure Impact Map">
+                </div>
+                
+                <div class="insights-container">
+                    <div class="insight-card">
+                        <div class="insight-value">439k</div>
+                        <div class="insight-label">Children Affected</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-value">383</div>
+                        <div class="insight-label">Schools Affected</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-value">285</div>
+                        <div class="insight-label">Healthcare Facilities</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-value">668</div>
+                        <div class="insight-label">Total Facilities</div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Coastal Flooding Section -->
+        <div id="coastal" class="content-section">
+            <div class="section-header">
+                <h2>Flooding Analysis</h2>
+                <p>Detailed flood hazard assessment showing depth and exposure areas</p>
+            </div>
+
+            <div class="map-section">
+                <div class="map-container">
+                    <div class="map-title">Cyclone Amphan Flood Hazard Assessment</div>
+                    <img src="flood near hurricane.png" alt="Flood Hazard Assessment Map">
+                </div>
+                <div class="insights-container">
+                    <div class="insight-card">
+                        <div class="insight-value">1,557,841</div>
+                        <div class="insight-label">Vulnerable Children</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-value">2.0-23m</div>
+                        <div class="insight-label">Flood Depth Range</div>
+                    </div>
+                    </div>
+                    
+       
+
+                    </div>
+                </div>
+               
+        
+            </div>
+        </div>
+
+        <!-- Water Contamination Section -->
+        <div id="contamination" class="content-section">
+            <div class="section-header">
+                <h2>Water Contamination Risk</h2>
+                <p>Assessment of water safety risks following hurricane impact</p>
+            </div>
+
+            <div class="map-section">
+                <div class="map-container">
+                    <div class="map-title">Water Contamination Risk Assessment</div>
+                    <img src="water contamination.png" alt="Water Contamination Risk Map">
+                </div>
+                
+                <div class="insights-container">
+                    <div class="insight-card">
+                        <div class="insight-value">263k-939k</div>
+                        <div class="insight-label">Vulnerable Children</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-value">1,297km</div>
+                        <div class="insight-label">At-Risk Waterways</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create stars
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const numStars = 100;
+            
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            createStars();
+            
+            // Add intersection observer for animations
+            const cards = document.querySelectorAll('.overview-card, .insight-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'all 0.6s ease';
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>

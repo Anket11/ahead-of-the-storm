@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bangladesh | UNICEF Child Weather Intelligence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #2d1b69 100%);
+            color: white;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            padding: 2rem 0;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #00aaff, #0088cc);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(45deg, #00aaff, #66ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .back-button {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .back-button:hover {
+            color: #00aaff;
+            background: rgba(0, 170, 255, 0.1);
+            border-color: #00aaff;
+        }
+        
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 170, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+        }
+        
+        .country-flag {
+            width: 120px;
+            height: 80px;
+            background: linear-gradient(to right, #006A4E 0%, #006A4E 100%);
+            border-radius: 12px;
+            margin: 0 auto 2rem;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 170, 255, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .country-flag::after {
+            content: '🇧🇩';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+        }
+        
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ffffff, #00aaff, #66ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #00aaff, #66ccff);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 170, 255, 0.3);
+            box-shadow: 0 15px 40px rgba(0, 170, 255, 0.2);
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #00aaff;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-desc {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+        }
+        
+        .disasters-section {
+            padding: 4rem 0;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(45deg, #00aaff, #66ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .disaster-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .disaster-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+        }
+        
+        .disaster-card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 107, 107, 0.4);
+            box-shadow: 0 20px 60px rgba(255, 107, 107, 0.3);
+        }
+        
+        .disaster-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .disaster-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            box-shadow: 0 8px 32px rgba(255, 107, 107, 0.3);
+        }
+        
+        .disaster-info h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ff8e8e;
+            margin-bottom: 0.5rem;
+        }
+        
+        .disaster-date {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .disaster-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .disaster-stat {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .disaster-stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ff8e8e;
+            margin-bottom: 0.5rem;
+        }
+        
+        .disaster-stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .click-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 170, 255, 0.2);
+            color: #00aaff;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(0, 170, 255, 0.3);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .disaster-header { flex-direction: column; text-align: center; }
+            .disaster-stats { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">🌪️</div>
+                    <div class="logo-text">Bangladesh Risk Analysis</div>
+                </div>
+                <a href="javascript:history.back()" class="back-button">← Back to Global Map</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <div class="country-flag"></div>
+                <h1>Bangladesh</h1>
+                <p>Comprehensive disaster risk analysis and child vulnerability assessment for the People's Republic of Bangladesh</p>
+            </div>
+        </section>
+
+        <section class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-number">165M</div>
+                    <div class="stat-label">Total Population</div>
+                    <div class="stat-desc">One of the world's most populous countries</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🧒</div>
+                    <div class="stat-number">50.5M</div>
+                    <div class="stat-label">Children (0-17 years)</div>
+                    <div class="stat-desc">29% of total population</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🌊</div>
+                    <div class="stat-number">26%</div>
+                    <div class="stat-label">Flood-Prone Areas</div>
+                    <div class="stat-desc">Annual monsoon flooding affects millions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏝️</div>
+                    <div class="stat-number">580km</div>
+                    <div class="stat-label">Coastline Length</div>
+                    <div class="stat-desc">Vulnerable to cyclones and storm surge</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-number pulse">High</div>
+                    <div class="stat-label">Climate Risk Level</div>
+                    <div class="stat-desc">Extremely vulnerable to climate change</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🌪️</div>
+                    <div class="stat-number">29</div>
+                    <div class="stat-label">Major Cyclones (2000-2023)</div>
+                    <div class="stat-desc">Increasing frequency and intensity</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="disasters-section">
+            <div class="container">
+                <h2 class="section-title">Recent Major Disasters</h2>
+                
+                <div class="disaster-card" onclick="openAmphanDashboard()">
+                    <div class="click-indicator pulse">Click to Explore →</div>
+                    <div class="disaster-header">
+                        <div class="disaster-icon">🌀</div>
+                        <div class="disaster-info">
+                            <h3>Cyclone Amphan</h3>
+                            <div class="disaster-date">May 20, 2020</div>
+                        </div>
+                    </div>
+                    <p style="color: rgba(255,255,255,0.8); margin-bottom: 1.5rem; font-size: 1.1rem;">
+                        The most powerful cyclone to strike the Bengal region in over a decade, causing widespread destruction across southwestern Bangladesh and eastern India. Wind speeds reached 185 km/h, affecting millions of children and families.
+                    </p>
+                    <div class="disaster-stats">
+                        <div class="disaster-stat">
+                            <div class="disaster-stat-number">26</div>
+                            <div class="disaster-stat-label">Deaths in Bangladesh</div>
+                        </div>
+                        <div class="disaster-stat">
+                            <div class="disaster-stat-number">10M+</div>
+                            <div class="disaster-stat-label">People Affected</div>
+                        </div>
+                        <div class="disaster-stat">
+                            <div class="disaster-stat-number">2.4M</div>
+                            <div class="disaster-stat-label">Children at Risk</div>
+                        </div>
+                        <div class="disaster-stat">
+                            <div class="disaster-stat-number">55,000</div>
+                            <div class="disaster-stat-label">Homes Destroyed</div>
+                        </div>
+                        <div class="disaster-stat">
+                            <div class="disaster-stat-number">185</div>
+                            <div class="disaster-stat-label">Max Wind Speed (km/h)</div>
+                        </div>
+                        <div class="disaster-stat">
+                            <div class="disaster-stat-number">19</div>
+                            <div class="disaster-stat-label">Districts Affected</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Create animated stars
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const numStars = 100;
+            
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        function openAmphanDashboard() {
+            // You can replace this with actual navigation
+            window.open('amphan.html', '_blank');
+        }
+        
+        // Initialize stars when page loads
+        document.addEventListener('DOMContentLoaded', createStars);
+    </script>
+</body>
+</html>
